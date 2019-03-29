@@ -13,10 +13,10 @@
         </v-toolbar-title>
       </v-flex>
       <v-flex>
-        <router-link v-if="isLogin" to="transaction"> Transaction </router-link>
+        <router-link v-if="isLogin" to="/transaction"> Transaction </router-link>
       </v-flex>
       <v-flex>
-        <router-link v-if="isLogin" to="cart"> Cart </router-link>
+        <router-link v-if="isLogin" to="/cart"> Cart </router-link>
       </v-flex>
       <v-flex>
         <login-modal v-if="!isLogin"/>
@@ -27,18 +27,22 @@
       </v-flex>
     </v-toolbar>
     <v-flex>
+      <div v-if="!carts.length">
+        No Product in Cart Yet
+      </div>
       <div>
         <my-cardcarts
           v-for="cart in carts"
           :key="cart._id"
           :cart="cart"
-          :dataOngkir="dataOngkir"
-          :city="city"
-          :province="province"
           @delete-cart="deleteCart($event)"
-          @update-cart="updateCart($event)"/>
+          @update-cart="updateCart($event)"
+          @selected-change="changeSelected($event)"/>
       </div>
     </v-flex>
+    <router-view
+      :selected="selected"
+      @add-transactions="addTransaction($event)"></router-view>
   </div>
 </template>
 
@@ -75,9 +79,7 @@ export default {
     return {
       role: localStorage.getItem('role'),
       carts: [],
-      dataOngkir: [],
-      city: [],
-      province: []
+      selected: ''
     }
   },
   mounted () {
@@ -89,17 +91,6 @@ export default {
       })
       .then(({ data }) => {
         this.carts = data.carts
-        return serverAPI
-          .get('/transactions/rajaOngkir', {
-            headers: {
-              token: localStorage.getItem('token')
-            }
-          })
-      })
-      .then(({ data }) => {
-        this.dataOngkir = data.dataOngkir
-        this.city = this.dataOngkir.city.map(city => city.name)
-        this.province = this.dataOngkir.province.map(province => province.name)
       })
       .catch(({ resposne }) => {
         if (response.data) {
@@ -128,12 +119,17 @@ export default {
       'logout'
     ]),
     deleteCart (id) {
-      console.log(id)
       this.carts = this.carts.filter(cart => cart._id.toString() !== id.toString())
     },
     updateCart (updatedCart) {
       this.carts = this.carts.filter(cart => cart._id.toString() !== updatedCart._id.toString())
       this.carts.push(updatedCart)
+    },
+    changeSelected(value) {
+      this.selected = value
+    },
+    addTransaction(id) {
+      this.carts = this.carts.filter(cart => cart._id.toString() !== id.toString());
     }
   }
 }

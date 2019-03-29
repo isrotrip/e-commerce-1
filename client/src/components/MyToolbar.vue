@@ -8,10 +8,10 @@
       </v-toolbar-title>
     </v-flex>
     <v-flex>
-      <router-link v-if="isLogin" to="transaction"> Transaction </router-link>
+      <router-link v-if="isLogin" :to="'transaction'"> Transaction </router-link>
     </v-flex>
     <v-flex>
-      <router-link v-if="isLogin" to="cart"> Cart </router-link>
+      <router-link v-if="isLogin" :to="'cart'"> Cart </router-link>
     </v-flex>
     <v-flex>
       <login-modal v-if="!isLogin"/>

@@ -75,27 +75,31 @@ export default {
   },
   methods: {
     addToCart (id) {
-      serverAPI
-        .post('/carts', {
-          productId: id,
-          amount: this.amount
-        }, {
-          headers: {
-            token: localStorage.getItem('token')
-          }
-        })
-        .then(({ data }) => {
-          SWAL('success', data.message)
-          this.amount = ''
-        })
-        .catch(({ response }) => {
-          if (response.data) {
-            SWAL('error', response.data.message)
-          } else {
-            console.log(response.data)
-          }
-        })
-    }
+      if(this.isLogin) {
+        serverAPI
+          .post('/carts', {
+            productId: id,
+            amount: this.amount
+          }, {
+            headers: {
+              token: localStorage.getItem('token')
+            }
+          })
+          .then(({ data }) => {
+            SWAL('success', data.message)
+            this.amount = ''
+          })
+          .catch(({ response }) => {
+            if (response.data) {
+              SWAL('error', response.data.message)
+            } else {
+              console.log(response.data)
+            }
+          })
+      } else {
+        SWAL('error', 'Please login to continue')
+      }
+    } 
   }
 }
 </script>

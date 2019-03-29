@@ -39,10 +39,10 @@ class TransactionController {
   static priceOngkir (req, res) {
     rajaOngkirApi
       .post('/cost', {
-        origin: req.body.origin,
-        destination: req.body.destination,
+        origin: (Number(req.body.origin) + 1).toString(),
+        destination: (Number(req.body.destination) + 1).toString(),
         courier: req.body.courier,
-        weight: Number(req.cart.amount)*100 //semua barang dalam 100 gr
+        weight: Number(req.cart.amount)*100
       })
       .then(({ data }) => {
         res.status(200).json({
@@ -50,11 +50,59 @@ class TransactionController {
           info: data.rajaongkir.results
         })
       })
-      .catch(error => {
+      .catch(({ response }) => {
+        console.log(response.data)
         res.status(500).json({
           message: 'Internal Server Error'
         })
       })
+  }
+
+  static createSimple (req, res) {
+    if(req.cart.productId.amount >= req.cart.amount) {
+
+      Transaction
+        .create({
+          product: {
+            _id: req.cart.productId._id,
+            name: req.cart.productId.name,
+            price: req.cart.productId.price
+          },
+          itemPrice: req.body.productPrice,
+          deliverPrice: req.body.price,
+          totalPrice: req.body.totalPrice,
+          amount: req.cart.amount,
+          status: 'pending',
+          userId: req.userLogin._id
+        })
+        .then(transaction => {
+          let productId = req.cart.productId._id
+          Product
+            .findByIdAndUpdate(productId, {
+              amount: req.cart.productId.amount - req.cart.amount
+            })
+            .then(() => {
+              Cart
+                .findByIdAndDelete(req.cart._id)
+                .then(() => {
+                  res.status(201).json({
+                    message: `Your product ${req.cart.productId.name} is on transaction in status as pending`,
+                    transaction: transaction
+                  })
+                })
+            })
+        })
+        .catch(error => {
+          console.log(error)
+          res.status(500).json({
+            message: 'Internal Server Error'
+          })
+        })
+    } else {
+      res.status(400).json({
+        message: 'Sorry the current stock is not enough'
+      })
+    }
   }
 
   static create (req, res) {
@@ -170,10 +218,12 @@ class TransactionController {
   }
 
   static read (req, res) {
+    let findBy = {}
+    if(req.userLogin.role !== 'admin') {
+      findBy = { userId: req.userLogin._id}
+    }
     Transaction
-      .find({
-        userId: req.userLogin._id
-      })
+      .find(findBy)
       .then(transactions => {
         res.status(200).json({
           message: 'Find transaction success',
@@ -181,6 +231,7 @@ class TransactionController {
         })
       })
       .catch(error => {
+        console.log(error)
         res.status(500).json({
           message: 'Internal Server Error'
         })
@@ -188,10 +239,14 @@ class TransactionController {
   }
 
   static update (req, res) {
+    let update = {
+      status: req.body.status
+    }
+    if(req.body.status === 'send') {
+      update.adminId = req.userLogin._id
+    }
     Transaction
-      .findByIdAndUpdate(req.params.id, {
-        status: req.body.status
-      }, { new: true })
+      .findByIdAndUpdate(req.params.id, update, { new: true })
       .then(transaction => {
         if(req.body.status === 'send') {
           res.status(200).json({

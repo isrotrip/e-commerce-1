@@ -49,7 +49,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'toggleRegisterFormisLogin'
+      'toggleRegisterForm'
     ])
   },
   watch: {

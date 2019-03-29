@@ -43,7 +43,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'toggleRegisterFormisLogin'
+      'toggleRegisterForm'
     ])
   },
   watch: {
@@ -73,7 +73,7 @@ export default {
     clearForm () {
       this.name = ''
       this.email = ''
-      this.password = '',
+      this.password = ''
       this.secret = ''
     }
   }

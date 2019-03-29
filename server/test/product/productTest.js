@@ -234,6 +234,29 @@ describe('ROUTE /products', function () {
           })
       })
 
+      it.only('should return status code 400 if price field is negative', function (done) {
+        supertest(app)
+          .post('/products')
+          .set('token', adminToken)
+          .attach('image', '')
+          .field({
+            name: 'Latte Chocolate',
+            amount: 1,
+            price: -500,
+            created_at: '',
+            expired_date: ''
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(400);
+            expect(res.body).to.have.be.an('object');
+            expect(res.body).to.haveOwnProperty('message');
+            expect(res.body.message).to.be.a('string');
+            expect(res.body.message).to.be.equal('Minimum price is 1000')
+            done();
+          })
+      })
+
       it.only('should return status code 400 if created_at field is empty', function (done) {
         supertest(app)
           .post('/products')

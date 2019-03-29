@@ -7,26 +7,6 @@
         <div>Amount: {{ cart.amount }}</div>
       </div>
     </v-card-title>
-
-     <v-layout wrap align-center>
-      <v-flex xs12 sm6 d-flex>
-        {{city}}
-        <v-select
-          :city="city"
-          label="City"
-        ></v-select>
-      </v-flex>
-     </v-layout>
-      <v-layout wrap align-center>
-      <v-flex xs12 sm6 d-flex>
-        {{province}}
-        <v-select
-          :province="province"
-          label="Province"
-        ></v-select>
-      </v-flex>
-      </v-layout>
-
     <v-card-actions>
       <button flat @click="addToTransaction">Add To Transaction</button>
       <update-cartmodal
@@ -84,7 +64,10 @@ export default {
     }
   },
   methods: {
-    addToTransaction () {}
+    addToTransaction () {
+      this.$emit('selected-change', this.cart._id)
+      this.$router.push(`/cart/${this.cart._id}`)
+    }
   }
 }
 </script>

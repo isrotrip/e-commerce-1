@@ -110,6 +110,36 @@ class CartController {
       })
   }
 
+  static readOne (req, res) {
+    Cart
+      .findById(req.params.id)
+      .populate('productId')
+      .then(cart => {
+        let editCarts = {}
+        editCarts._id = cart._id
+        editCarts.amount = cart.amount
+        editCarts.product = {
+          _id: cart.productId._id,
+          name: cart.productId.name,
+          amount: cart.productId.amount,
+          price: cart.productId.price,
+          created_at: new Date(cart.productId.created_at).toLocaleDateString('en-US', options),
+          expired_date: new Date(cart.productId.expired_date).toLocaleDateString('en-US', options),
+          pictureUrl: cart.productId.pictureUrl
+        }
+        editCarts.userId = cart.userId
+        res.status(200).json({
+          message: 'Read your cart success',
+          cart: editCarts
+        })
+      })
+      .catch(error => {
+        res.status(500).json({
+          message: 'Internal Server Error'
+        })
+      })
+  }
+
   static update(req, res) {
     Product
       .findById(req.body.productId)

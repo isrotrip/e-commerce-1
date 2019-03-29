@@ -22,8 +22,9 @@ export default new Router({
       name: 'cart',
       component: () => import(/* webpackChunkName: "cart" */ './views/Cart.vue'),
       children: [{
-        path: 'rajaOngkir/:id',
-        componentcomponent: () => import(/* webpackChunkName: "rajaOngkir" */ './views/RajaOngkir.vue')
+        path: ':id',
+        name: 'rajaOngkir',
+        component: () => import(/* webpackChunkName: "rajaOngkir" */ './views/RajaOngkir.vue')
       }]
     },
     {
